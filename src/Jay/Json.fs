@@ -5,6 +5,7 @@ open System.Globalization
 open System.IO
 open System.Text
 
+[<RequireQualifiedAccess>]
 type Json =
   | Null  
   | Bool    of bool
