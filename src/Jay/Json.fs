@@ -6,13 +6,12 @@ open System.IO
 open System.Text
 
 type Json =
-  | String  of string
-  | Number  of decimal
-  | Float   of float
-  | Record  of properties:(string * Json)[]
-  | Array   of elements:Json[]
-  | Boolean of bool
   | Null  
+  | Bool    of bool
+  | String of string
+  | Number of decimal
+  | Array  of elements:Json[]
+  | Object of properties:(string * Json)[]
 
 type private JsonParser(jsonText:string) =
 
@@ -46,8 +45,8 @@ type private JsonParser(jsonText:string) =
         | c when Char.IsDigit(c) -> parseNum()
         | '{' -> parseObject()
         | '[' -> parseArray()
-        | 't' -> parseLiteral("true", Json.Boolean true)
-        | 'f' -> parseLiteral("false", Json.Boolean false)
+        | 't' -> parseLiteral("true", Json.Bool true)
+        | 'f' -> parseLiteral("false", Json.Bool false)
         | 'n' -> parseLiteral("null", Json.Null)
         | _ -> throw()
 
@@ -106,12 +105,9 @@ type private JsonParser(jsonText:string) =
             i <- i + 1
         let len = i - start
         let sub = s.Substring(start,len)
-        match TextConversions.parseDecimal CultureInfo.InvariantCulture sub with
+        match StringParser.parseDecimal CultureInfo.InvariantCulture sub with
         | Some x -> Json.Number x
-        | _ ->
-            match TextConversions.parseFloat CultureInfo.InvariantCulture sub with
-            | Some x -> Json.Float x
-            | _ -> throw()
+        | _      -> throw()
 
     and parsePair() =
         let key = parseString()
@@ -136,7 +132,7 @@ type private JsonParser(jsonText:string) =
                 skipWhitespace()
         ensure(i < s.Length && s.[i] = '}')
         i <- i + 1
-        Json.Record(pairs.ToArray())
+        Json.Object(pairs.ToArray())
 
     and parseArray() =
         ensure(i < s.Length && s.[i] = '[')

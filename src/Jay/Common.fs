@@ -6,7 +6,7 @@ open System.Globalization
 
 let trySome fn = try fn |> Some with _ -> None
 
-module TextConversions =     
+module StringParser =     
     let parseWith (tryParseFunc: string -> bool * _) = 
         tryParseFunc >> function
         | true, v    -> Some v
@@ -25,7 +25,6 @@ module TextConversions =
     let parseGuid               = parseWith Guid.TryParse
 
 module UnicodeHelper =
-
     // used http://en.wikipedia.org/wiki/UTF-16#Code_points_U.2B010000_to_U.2B10FFFF as a guide below
     let getUnicodeSurrogatePair num =
         // only code points U+010000 to U+10FFFF supported

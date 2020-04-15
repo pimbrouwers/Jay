@@ -1,8 +1,11 @@
 module Tests
 
 open System
+open FsUnit.Xunit
 open Xunit
+open Jay
 
 [<Fact>]
-let ``My test`` () =
-    Assert.True(true)
+let ``Can parse empty document``() =
+    let j = Json.parse "{}"
+    j |> should equal (Object [| |])
