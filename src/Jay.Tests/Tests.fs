@@ -8,4 +8,4 @@ open Jay
 [<Fact>]
 let ``Can parse empty document``() =
     let j = Json.parse "{}"
-    j |> should equal (Object [| |])
+    j |> should equal (Json.Object [| |])
