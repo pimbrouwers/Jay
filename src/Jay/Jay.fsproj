@@ -4,12 +4,45 @@
     <TargetFramework>netstandard2.0</TargetFramework>
   </PropertyGroup>
 
-  <ItemGroup>
-    <Compile Include="Json.fs" />
-  </ItemGroup>
+  <PropertyGroup>
+    <AssemblyName>Jay</AssemblyName>
+    <Version>1.0.0</Version>
+
+    <!-- General info -->
+    <Description>F# JSON Parser + Serializer</Description>
+    <Copyright>Copyright 2020 Pim Brouwers</Copyright>
+    <Authors>Pim Brouwers</Authors>
+    <NeutralLanguage>en-CA</NeutralLanguage>
+
+    <!-- Build config -->
+    <DebugType>portable</DebugType>
+    <OutputType>Library</OutputType>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <TargetFramework>netstandard2.0</TargetFramework>
+
+    <!-- NuGet config -->
+    <PackageId>Jay</PackageId>
+    <PackageVersion>1.0.0</PackageVersion>
+    <PackageTags>fsharp;functional;json</PackageTags>
+    <PackageProjectUrl>https://github.com/pimbrouwers/Jay</PackageProjectUrl>
+    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+    <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
+    <RepositoryType>git</RepositoryType>
+    <RepositoryUrl>https://github.com/pimbrouwers/Jay</RepositoryUrl>
+
+    <!-- SourceLink settings -->
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+  </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="FSharp.Core" Version="4.5.2" />
+    <PackageReference Include="FSharp.Core" Version="4.7.*" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <Compile Include="Json.fs" />
   </ItemGroup>
 
 </Project>
