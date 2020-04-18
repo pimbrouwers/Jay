@@ -79,9 +79,9 @@ let ``Can parse a string from twitter api without throwing an error``() =
 [<Fact>]
 let ``Can parse array of numbers``() =
     let j = Json.parse "[1, 2, 3]"
-    j.[0] |> should equal (Json.Number 1m)
-    j.[1] |> should equal (Json.Number 2m)
-    j.[2] |> should equal (Json.Number 3m)
+    j.[0] |> should equal (Json.Number 1.0)
+    j.[1] |> should equal (Json.Number 2.0)
+    j.[2] |> should equal (Json.Number 3.0)
 
 [<Fact>]
 let ``Quotes in strings are properly escaped``() =

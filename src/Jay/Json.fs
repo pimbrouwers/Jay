@@ -12,7 +12,7 @@ type Json =
   | Null  
   | Bool   of bool
   | String of string
-  | Number of decimal
+  | Number of float  
   | Array  of elements:Json[]
   | Object of properties:(string * Json)[]
 
@@ -141,7 +141,7 @@ type private JsonParser(jsonText:string) =
             i <- i + 1
         let len = i - start
         let sub = s.Substring(start,len)
-        match StringParser.parseDecimal CultureInfo.InvariantCulture sub with
+        match StringParser.parseFloat CultureInfo.InvariantCulture sub with
         | Some x -> Json.Number x
         | _      -> throw()
 
@@ -274,10 +274,10 @@ module Json =
             JsonParser(text).Parse())
     
 module internal JsonConvert =     
-    let inline decimalInRange min max (d : Decimal) = 
-        let _min = decimal min
-        let _max = decimal max
-        d >= _min && d <= _max
+    let inline floatInRange min max (f : float) = 
+        let _min = float min
+        let _max = float max
+        f >= _min && f <= _max
 
     let asString (cul : CultureInfo) (json : Json) =
         match json with 
@@ -289,19 +289,19 @@ module internal JsonConvert =
   
     let asInt16 (cul : CultureInfo) (json : Json) =        
         match json with
-        | Json.Number n when decimalInRange Int16.MinValue Int16.MaxValue n -> Some (Convert.ToInt16(n))            
+        | Json.Number n when floatInRange Int16.MinValue Int16.MaxValue n -> Some (Convert.ToInt16(n))            
         | Json.String s -> StringParser.parseInt16 cul s
         | _             -> None
 
     let asInt32 (cul : CultureInfo) (json : Json) =        
         match json with
-        | Json.Number n when decimalInRange Int32.MinValue Int32.MaxValue n -> Some (Convert.ToInt32(n))            
+        | Json.Number n when floatInRange Int32.MinValue Int32.MaxValue n -> Some (Convert.ToInt32(n))            
         | Json.String s -> StringParser.parseInt32 cul s
         | _             -> None
 
     let asInt64 (cul : CultureInfo) (json : Json) =        
         match json with
-        | Json.Number n when decimalInRange Int64.MinValue Int64.MaxValue n -> Some (Convert.ToInt64(n))
+        | Json.Number n when floatInRange Int64.MinValue Int64.MaxValue n -> Some (Convert.ToInt64(n))
         | Json.String s -> StringParser.parseInt64 cul s
         | _             -> None
 
@@ -309,11 +309,11 @@ module internal JsonConvert =
 
     let asBool (json : Json) =
         match json with 
-        | Json.Bool b      -> Some b
-        | Json.Number 1.0M -> Some true
-        | Json.Number 0M   -> Some false
-        | Json.String s    -> StringParser.parseBoolean s
-        | _                -> None
+        | Json.Bool b     -> Some b
+        | Json.Number 1.0 -> Some true
+        | Json.Number 0.0 -> Some false
+        | Json.String s   -> StringParser.parseBoolean s
+        | _               -> None
 
     let asFloat (cul : CultureInfo) (json : Json) = 
         match json with
@@ -323,7 +323,7 @@ module internal JsonConvert =
 
     let asDecimal (cul : CultureInfo) (json : Json) =
         match json with
-        | Json.Number n -> Some n
+        | Json.Number n -> Some (decimal n)
         | Json.String s -> StringParser.parseDecimal cul s
         | _             -> None
 
@@ -331,14 +331,14 @@ module internal JsonConvert =
 
     let asDateTime (cul : CultureInfo) (json : Json) =
         match json with 
-        | Json.Number n when decimalInRange Int64.MinValue Int64.MaxValue n -> 
+        | Json.Number n when floatInRange Int64.MinValue Int64.MaxValue n -> 
             Some (epoch.AddMilliseconds(float n))
         | Json.String s -> StringParser.parseDateTime cul s
         | _             -> None
 
     let asDateTimeOffset (cul : CultureInfo) (json : Json) =
         match json with
-        | Json.Number n when decimalInRange Int64.MinValue Int64.MaxValue n -> 
+        | Json.Number n when floatInRange Int64.MinValue Int64.MaxValue n -> 
             Some (DateTimeOffset.FromUnixTimeMilliseconds(Convert.ToInt64(n)))
         | Json.String s -> StringParser.parseDateTimeOffset cul s
         | _             -> None
