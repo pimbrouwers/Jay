@@ -115,3 +115,11 @@ Of course F# has JSON type providers, which effectively amount to the same resul
 F# being so terse, it actually turns out that it is incredible practical to *map your own* JSON (as well as any other IO entry points - see [Donald](https://github.com/pimbrouwers/Donald)). At first this sounds crazy. But if you consider that these IO boundaries are common places for faults. It likely behoves you to be explicit in those places.
 
 The aim of this library was to take the core JSON parser from the amazing [FSharp.Data](https://github.com/fsharp/FSharp.Data/) project, and modernize/simplify it's API. The hopes of this effort is to make JSON more approachable and easier to reason about for newcomers to the language.
+
+## Find a bug?
+
+There's an [issue](https://github.com/pimbrouwers/Jay/issues) for that.
+
+## License
+
+Built with ♥ by [Pim Brouwers](https://github.com/pimbrouwers) in Toronto, ON. Licensed under [Apache License 2.0](https://github.com/pimbrouwers/Jay/blob/master/LICENSE).
