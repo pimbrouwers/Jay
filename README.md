@@ -1,13 +1,22 @@
 # Jay
 
+[![NuGet Version](https://img.shields.io/nuget/v/Jay.svg)](https://www.nuget.org/packages/Jay)
 [![Build Status](https://travis-ci.org/pimbrouwers/Jay.svg?branch=master)](https://travis-ci.org/pimbrouwers/Jay)
-
-
-JSON in F# is tough and confusing. This library aims to make it much simpler.
 
 ## Getting Started
 
-This will be completed once released on NuGet. Stay tuned.
+JSON in F# can be tough and confusing. This library aims to make it much simpler.
+
+Install the [Jay](https://www.nuget.org/packages/Jay/) NuGet package:
+
+```
+PM>  Install-Package Jay
+```
+
+Or using the dotnet CLI
+```cmd
+dotnet add package Jay
+```
 
 ## An Example
 
