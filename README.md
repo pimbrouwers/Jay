@@ -121,7 +121,7 @@ If you're a newcomer to F#, it can be confusing how to handle JSON since there i
 
 Of course F# has JSON type providers, which effectively amount to the same result. Except they generate the types  for you based on sampling the actual JSON you're intending to consume. If you're doing quick-and-dirty exploratory work, type providers are immensely useful. 
 
-F# being so terse, it actually turns out that it is incredible practical to *map your own* JSON (as well as any other IO entry points - see [Donald](https://github.com/pimbrouwers/Donald)). At first this sounds crazy. But if you consider that these IO boundaries are common places for faults. It likely behoves you to be explicit in those places.
+F# being so terse, it actually turns out that it is incredible practical to *map your own* JSON (as well as any other IO entry points - see [Donald](https://github.com/pimbrouwers/Donald)). At first this sounds crazy. But if you consider that these IO boundaries are common places for faults. It behoves you to be explicit in those places.
 
 The aim of this library was to take the core JSON parser from the amazing [FSharp.Data](https://github.com/fsharp/FSharp.Data/) project, and modernize/simplify it's API. The hopes of this effort is to make JSON more approachable and easier to reason about for newcomers to the language.
 
