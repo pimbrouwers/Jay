@@ -45,7 +45,7 @@ type Tweet =
     }
 ```
 
-Next we'll define a static [type extension](https://docs.microsoft.com/en-us/dotnet/fsharp/language-reference/type-extensions) called `FromJson` to consume our JSON and return a `Tweet` record.
+Next we'll define a module with the same name, `Tweet`, and a function called `fromJson` to consume our JSON and return a `Tweet` record.
 
 ```f#
 type Tweet = 
@@ -56,7 +56,8 @@ type Tweet =
         Text      : string
     }
 
-    static member FromJson (json : Json) =
+module Tweet =
+    let fromJson (json : Json) =
         {
             CreatedAt = json?created_at.AsDateTimeOffset()
             Id        = json?id.AsInt64()
@@ -69,10 +70,10 @@ let tweetJson = ... // JSON from above
 let tweet = 
     tweetJson
     |> Json.parse
-    |> Tweet.FromJson
+    |> Tweet.fromJson
 ```
 
-Finally, we'll create another static type extension `ToJson` to convert our record back into JSON represented as an [abstract syntax tree](https://en.wikipedia.org/wiki/Abstract_syntax_tree).
+Finally, we'll create another function `toJson` to convert our record back into JSON represented as an [abstract syntax tree](https://en.wikipedia.org/wiki/Abstract_syntax_tree).
 
 ```f#
 type Tweet = 
@@ -83,7 +84,8 @@ type Tweet =
         Text      : string
     }
 
-    static member FromJson (json : Json) =
+module Tweet =
+    let fromJson (json : Json) =
         {
             CreatedAt = json?created_at.AsDateTimeOffset()
             Id        = json?id.AsInt64()
@@ -91,7 +93,7 @@ type Tweet =
             Text      = json?text.AsString()
         }
 
-    static member ToJson (tweet : Tweet) =
+    let toJson (tweet : Tweet) =
         Json.Object 
             [|
                 "created_at", Json.String (tweet.CreatedAt.ToString())
@@ -104,11 +106,11 @@ let tweetJson = ... // JSON from above
 let tweet = 
     tweetJson
     |> Json.parse
-    |> Tweet.FromJson
+    |> Tweet.fromJson
 
 let json =
     tweet
-    |> Tweet.ToJson
+    |> Tweet.toJson
     |> Json.serialize
 ```
 
