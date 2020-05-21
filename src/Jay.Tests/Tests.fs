@@ -9,7 +9,7 @@ open Jay
 [<Fact>]
 let ``Can parse empty document``() =
     let j = Json.parse "{}"
-    j |> should equal (Json.Object [| |])
+    j |> should equal (JObject [| |])
 
 [<Fact>]
 let ``Can parse document with single property``() =
@@ -79,9 +79,9 @@ let ``Can parse a string from twitter api without throwing an error``() =
 [<Fact>]
 let ``Can parse array of numbers``() =
     let j = Json.parse "[1, 2, 3]"
-    j.[0] |> should equal (Json.Number 1.0)
-    j.[1] |> should equal (Json.Number 2.0)
-    j.[2] |> should equal (Json.Number 3.0)
+    j.[0] |> should equal (JNumber 1.0)
+    j.[1] |> should equal (JNumber 2.0)
+    j.[2] |> should equal (JNumber 3.0)
 
 [<Fact>]
 let ``Quotes in strings are properly escaped``() =
@@ -92,7 +92,7 @@ let ``Quotes in strings are properly escaped``() =
 // Serialization
 [<Fact>]
 let ``Can serialize document with nothing``() =
-    let j = Json.Object [||] |> Json.serialize
+    let j = JObject [||] |> Json.serialize
     j |> should equal "{}"
 
 [<Fact>]
@@ -115,10 +115,10 @@ let ``Can serialize document with bool``() =
 
 [<Fact>]
 let ``Can serialize document with booleans``() =
-    Json.Object 
+    JObject 
         [| 
-            "aa", Json.Bool true
-            "bb", Json.Bool false 
+            "aa", JBool true
+            "bb", JBool false 
         |]
     |> Json.serialize
     |> should equal "{\"aa\":true,\"bb\":false}"

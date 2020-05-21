@@ -7,14 +7,13 @@ open System.Text
 
 let trySome fn = try fn |> Some with _ -> None
 
-[<RequireQualifiedAccess>]
 type Json =
-  | Null  
-  | Bool   of bool
-  | String of string
-  | Number of float  
-  | Array  of elements:Json[]
-  | Object of properties:(string * Json)[]
+  | JNull  
+  | JBool   of bool
+  | JString of string
+  | JNumber of float  
+  | JArray  of elements:Json[]
+  | JObject of properties:(string * Json)[]
 
 module internal StringParser =     
     let parseWith (tryParseFunc: string -> bool * _) = 
@@ -76,14 +75,14 @@ type private JsonParser(jsonText:string) =
         skipWhitespace()
         ensure(i < s.Length)
         match s.[i] with
-        | '"' -> Json.String(parseString())
+        | '"' -> JString(parseString())
         | '-' -> parseNum()
         | c when Char.IsDigit(c) -> parseNum()
         | '{' -> parseObject()
         | '[' -> parseArray()
-        | 't' -> parseLiteral("true", Json.Bool true)
-        | 'f' -> parseLiteral("false", Json.Bool false)
-        | 'n' -> parseLiteral("null", Json.Null)
+        | 't' -> parseLiteral("true", JBool true)
+        | 'f' -> parseLiteral("false", JBool false)
+        | 'n' -> parseLiteral("null", JNull)
         | _ -> throw()
 
     and parseString() =
@@ -142,7 +141,7 @@ type private JsonParser(jsonText:string) =
         let len = i - start
         let sub = s.Substring(start,len)
         match StringParser.parseFloat CultureInfo.InvariantCulture sub with
-        | Some x -> Json.Number x
+        | Some x -> JNumber x
         | _      -> throw()
 
     and parsePair() =
@@ -168,7 +167,7 @@ type private JsonParser(jsonText:string) =
                 skipWhitespace()
         ensure(i < s.Length && s.[i] = '}')
         i <- i + 1
-        Json.Object(pairs.ToArray())
+        JObject(pairs.ToArray())
 
     and parseArray() =
         ensure(i < s.Length && s.[i] = '[')
@@ -185,7 +184,7 @@ type private JsonParser(jsonText:string) =
                 skipWhitespace()
         ensure(i < s.Length && s.[i] = ']')
         i <- i + 1
-        Json.Array(vals.ToArray())
+        JArray(vals.ToArray())
 
     and parseLiteral(expected, r) =
         ensure(i+expected.Length <= s.Length)
@@ -236,14 +235,14 @@ module Json =
 
         let rec serializeJson (w : TextWriter) (json : Json) = 
             match json with
-            | Json.Null -> w.Write "null"
-            | Json.Bool b -> w.Write(if b then "true" else "false")
-            | Json.Number number -> w.Write number            
-            | Json.String s ->
+            | JNull -> w.Write "null"
+            | JBool b -> w.Write(if b then "true" else "false")
+            | JNumber number -> w.Write number            
+            | JString s ->
                 w.Write "\""
                 jsonEncode w s
                 w.Write "\""
-            | Json.Object properties ->
+            | JObject properties ->
                 w.Write "{"                      
                 for i = 0 to properties.Length - 1 do
                     let k,v = properties.[i]
@@ -253,7 +252,7 @@ module Json =
                     w.Write propSep
                     serializeJson w v
                 w.Write "}"
-            | Json.Array elements ->
+            | JArray elements ->
                 w.Write "["
                 for i = 0 to elements.Length - 1 do
                     if i > 0 then w.Write ","                
@@ -281,82 +280,82 @@ module internal JsonConvert =
 
     let asString (cul : CultureInfo) (json : Json) =
         match json with 
-        | Json.Null          -> Some ""
-        | Json.Bool b when b -> Some (if b then "true" else "false")
-        | Json.String s      -> Some s
-        | Json.Number n      -> Some (n.ToString(cul))
+        | JNull          -> Some ""
+        | JBool b when b -> Some (if b then "true" else "false")
+        | JString s      -> Some s
+        | JNumber n      -> Some (n.ToString(cul))
         | _                  -> None
   
     let asInt16 (cul : CultureInfo) (json : Json) =        
         match json with
-        | Json.Number n when floatInRange Int16.MinValue Int16.MaxValue n -> Some (Convert.ToInt16(n))            
-        | Json.String s -> StringParser.parseInt16 cul s
+        | JNumber n when floatInRange Int16.MinValue Int16.MaxValue n -> Some (Convert.ToInt16(n))            
+        | JString s -> StringParser.parseInt16 cul s
         | _             -> None
 
     let asInt32 (cul : CultureInfo) (json : Json) =        
         match json with
-        | Json.Number n when floatInRange Int32.MinValue Int32.MaxValue n -> Some (Convert.ToInt32(n))            
-        | Json.String s -> StringParser.parseInt32 cul s
+        | JNumber n when floatInRange Int32.MinValue Int32.MaxValue n -> Some (Convert.ToInt32(n))            
+        | JString s -> StringParser.parseInt32 cul s
         | _             -> None
 
     let asInt64 (cul : CultureInfo) (json : Json) =        
         match json with
-        | Json.Number n when floatInRange Int64.MinValue Int64.MaxValue n -> Some (Convert.ToInt64(n))
-        | Json.String s -> StringParser.parseInt64 cul s
+        | JNumber n when floatInRange Int64.MinValue Int64.MaxValue n -> Some (Convert.ToInt64(n))
+        | JString s -> StringParser.parseInt64 cul s
         | _             -> None
 
     let asInt (cul : CultureInfo) (json : Json) = asInt32 cul json
 
     let asBool (json : Json) =
         match json with 
-        | Json.Bool b     -> Some b
-        | Json.Number 1.0 -> Some true
-        | Json.Number 0.0 -> Some false
-        | Json.String s   -> StringParser.parseBoolean s
+        | JBool b     -> Some b
+        | JNumber 1.0 -> Some true
+        | JNumber 0.0 -> Some false
+        | JString s   -> StringParser.parseBoolean s
         | _               -> None
 
     let asFloat (cul : CultureInfo) (json : Json) = 
         match json with
-        | Json.Number n -> Some (float n)
-        | Json.String s -> StringParser.parseFloat cul s
+        | JNumber n -> Some (float n)
+        | JString s -> StringParser.parseFloat cul s
         | _             -> None
 
     let asDecimal (cul : CultureInfo) (json : Json) =
         match json with
-        | Json.Number n -> Some (decimal n)
-        | Json.String s -> StringParser.parseDecimal cul s
+        | JNumber n -> Some (decimal n)
+        | JString s -> StringParser.parseDecimal cul s
         | _             -> None
 
     let epoch = new DateTime(1970,1,1,0,0,0,DateTimeKind.Utc)
 
     let asDateTime (cul : CultureInfo) (json : Json) =
         match json with 
-        | Json.Number n when floatInRange Int64.MinValue Int64.MaxValue n -> 
+        | JNumber n when floatInRange Int64.MinValue Int64.MaxValue n -> 
             Some (epoch.AddMilliseconds(float n))
-        | Json.String s -> StringParser.parseDateTime cul s
+        | JString s -> StringParser.parseDateTime cul s
         | _             -> None
 
     let asDateTimeOffset (cul : CultureInfo) (json : Json) =
         match json with
-        | Json.Number n when floatInRange Int64.MinValue Int64.MaxValue n -> 
+        | JNumber n when floatInRange Int64.MinValue Int64.MaxValue n -> 
             Some (DateTimeOffset.FromUnixTimeMilliseconds(Convert.ToInt64(n)))
-        | Json.String s -> StringParser.parseDateTimeOffset cul s
+        | JString s -> StringParser.parseDateTimeOffset cul s
         | _             -> None
 
     let asTimeSpan (cul : CultureInfo) (json : Json) =
         match json with 
-        | Json.String s -> StringParser.parseTimeSpan cul s
+        | JString s -> StringParser.parseTimeSpan cul s
         | _             -> None
 
     let asGuid (json : Json) = 
         match json with 
-        | Json.String s -> StringParser.parseGuid s
+        | JString s -> StringParser.parseGuid s
         | _             -> None
             
 type Json with        
     member this.AsArray () =
         match this with 
-        | Json.Array a -> a
+        | JArray a -> a
         | _            -> [||]
 
     member inline this.Item(i : int) = 
@@ -364,7 +363,7 @@ type Json with
 
     member this.TryGet (name : string) =
         match this with 
-        | Json.Object props -> 
+        | JObject props -> 
             Array.tryFind (fst >> (=) name) props |> Option.map snd
         | _ -> None            
 
