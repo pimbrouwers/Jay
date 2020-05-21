@@ -94,12 +94,12 @@ module Tweet =
         }
 
     let toJson (tweet : Tweet) =
-        Json.Object 
+        JObject 
             [|
-                "created_at", Json.String (tweet.CreatedAt.ToString())
-                "id",         Json.Number (float tweet.Id)
-                "id_str",     Json.String tweet.IdStr
-                "text",       Json.String tweet.Text
+                "created_at", JString (tweet.CreatedAt.ToString())
+                "id",         JNumber (float tweet.Id)
+                "id_str",     JString tweet.IdStr
+                "text",       JString tweet.Text
             |]
 
 let tweetJson = ... // JSON from above
