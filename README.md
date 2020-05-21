@@ -5,7 +5,7 @@
 
 ## Getting Started
 
-JSON in F# can be tough and confusing. This library aims to make it much simpler.
+This library aims to make working with JSON in F# much simpler.
 
 Install the [Jay](https://www.nuget.org/packages/Jay/) NuGet package:
 
