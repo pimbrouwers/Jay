@@ -66,10 +66,19 @@ module Json =
         serializeJson w json
         w.GetStringBuilder().ToString()
        
-    let tryParse (str : string) = 
-        trySome (JsonParser(str).Parse())
+    let tryParse (text : string) = 
+        try
+            JsonParser(text).Parse() 
+            |> Ok
+        with
+        | ex -> Error ex.Message        
 
-    let tryParseStream (str : Stream) =
-        use reader = new StreamReader(str)
+    let tryParseStream (stream : Stream) =
+        use reader = new StreamReader(stream)
         let text = reader.ReadToEnd()
-        trySome (JsonParser(text).Parse())
+        try
+            JsonParser(text).Parse() 
+            |> Ok
+        with
+        | ex -> Error ex.Message     
+        

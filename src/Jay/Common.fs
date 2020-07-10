@@ -1,10 +1,8 @@
 ﻿[<AutoOpen>]
-module Jay.Core
+module Jay.Common
 
 open System
 open System.Globalization
-
-let trySome fn = try fn |> Some with _ -> None
 
 type Json =
   | JNull  

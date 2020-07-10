@@ -3,6 +3,7 @@ module Jay.JsonParser
 
 open System
 open System.Globalization
+open System.IO
 open System.Text
 
 module internal UnicodeHelper =

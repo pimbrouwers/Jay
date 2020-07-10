@@ -24,7 +24,7 @@
 
     <!-- NuGet config -->
     <PackageId>Jay</PackageId>
-    <PackageVersion>1.0.1</PackageVersion>
+    <PackageVersion>1.0.2</PackageVersion>
     <PackageTags>fsharp;functional;json</PackageTags>
     <PackageProjectUrl>https://github.com/pimbrouwers/Jay</PackageProjectUrl>
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
@@ -42,9 +42,10 @@
   </ItemGroup>
   
   <ItemGroup>
-    <Compile Include="Core.fs" />
+    <Compile Include="Common.fs" />
     <Compile Include="JsonParser.fs" />
     <Compile Include="Json.fs" />
+    <Compile Include="JsonConvert.fs" />
     <Compile Include="JsonExtensions.fs" />
   </ItemGroup>
 
