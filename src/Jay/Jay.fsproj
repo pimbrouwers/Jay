@@ -6,7 +6,7 @@
 
   <PropertyGroup>
     <AssemblyName>Jay</AssemblyName>
-    <Version>1.0.1</Version>
+    <Version>1.0.0</Version>
 
     <!-- General info -->
     <Description>An idiomatic F# JSON parser and serializer</Description>
@@ -24,7 +24,7 @@
 
     <!-- NuGet config -->
     <PackageId>Jay</PackageId>
-    <PackageVersion>1.0.0</PackageVersion>
+    <PackageVersion>1.0.1</PackageVersion>
     <PackageTags>fsharp;functional;json</PackageTags>
     <PackageProjectUrl>https://github.com/pimbrouwers/Jay</PackageProjectUrl>
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
@@ -38,11 +38,14 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="FSharp.Core" Version="4.7.*" />
+    <PackageReference Include="FSharp.Core" Version="4.5.2" />
   </ItemGroup>
   
   <ItemGroup>
+    <Compile Include="Core.fs" />
+    <Compile Include="JsonParser.fs" />
     <Compile Include="Json.fs" />
+    <Compile Include="JsonExtensions.fs" />
   </ItemGroup>
 
 </Project>
