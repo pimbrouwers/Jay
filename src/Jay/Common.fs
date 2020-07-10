@@ -9,8 +9,8 @@ type Json =
   | JBool   of bool
   | JString of string
   | JNumber of float  
-  | JArray  of elements:Json[]
-  | JObject of properties:(string * Json)[]
+  | JArray  of elements : Json[]
+  | JObject of properties : (string * Json)[]
 
 module internal StringParser =     
     let parseWith (tryParseFunc: string -> bool * _) = 

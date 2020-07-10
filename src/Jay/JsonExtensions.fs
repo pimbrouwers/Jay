@@ -9,10 +9,16 @@ open JsonConvert
 [<Extension>]
 type JsonExtensions() =    
     [<Extension>]
+    static member AsPropertyArray (this : Json) =
+        match this with
+        | JObject properties -> properties
+        | _                  -> [||]
+
+    [<Extension>]
     static member AsArray (this : Json) : Json[] =
         match this with 
         | JArray a -> a
-        | _            -> [||]
+        | _        -> [||]
 
     [<Extension>]
     static member inline Item (this : Json, i : int) : Json = 
@@ -94,3 +100,4 @@ type JsonExtensions() =
     
 let (?) (json : Json) (name : string) : Json =
     json.Get name
+
