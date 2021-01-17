@@ -7,10 +7,6 @@
 
 This library aims to make working with JSON in F# much simpler.
 
-## Design Goal 
-
-The goal of this library was to take the core JSON parser from the amazing [FSharp.Data](https://github.com/fsprojects/FSharp.Data) project, and modernize/simplify it's API. The hopes of this effort is to make JSON more approachable and easier to reason about for newcomers to the language.
-
 Install the [Jay](https://www.nuget.org/packages/Jay/) NuGet package:
 
 ```
