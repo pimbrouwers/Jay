@@ -77,6 +77,26 @@ let ``Can parse a string from twitter api without throwing an error``() =
     Json.parse txt |> ignore
 
 [<Fact>]
+let ``Can convert missing optional string field to None``() =
+    let j = Json.parse "{ \"firstName\": \"Don\", \"lastName\": \"Syme\" }"
+    j.AsStringOrNone("name") |> should equal (None)
+
+[<Fact>]
+let ``Can convert missing optional int16 field to None``() =
+    let j = Json.parse "{ \"firstName\": \"Don\", \"lastName\": \"Syme\" }"
+    j.AsInt16OrNone("age") |> should equal (None)
+
+[<Fact>]
+let ``Can convert optional string field to Some``() =
+    let j = Json.parse "{ \"firstName\": \"Don\", \"lastName\": \"Syme\" }"
+    j.AsStringOrNone("firstName") |> should equal (Some "Don")
+
+[<Fact>]
+let ``Can convert optional int16 field to Some``() =
+    let j = Json.parse "{ \"firstName\": \"Don\", \"lastName\": \"Syme\", \"age\": \"45\" }"
+    j.AsInt16OrNone("age") |> should equal (Some (int16 45))
+
+[<Fact>]
 let ``Can parse array of numbers``() =
     let j = Json.parse "[1, 2, 3]"
     j.[0] |> should equal (JNumber 1.0)
@@ -147,4 +167,4 @@ let ``Can serialize document with guid``() =
     let txt = "{\"id\":\"{F842213A-82FB-4EEB-AB75-7CCD18676FD5}\"}"
     let j = Json.parse txt
     j |> Json.serialize |> should equal txt
-  
+    

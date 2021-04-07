@@ -46,18 +46,26 @@ type JsonExtensions() =
         match this.TryStringFormat cul with
         | Some s -> s
         | None   -> failwithf "%s is not a string" (Json.serialize this)
-        
-    [<Extension>]
-    static member TryString (this : Json) : string option =
-        this.TryStringFormat CultureInfo.InvariantCulture
-    
+            
     [<Extension>]
     static member AsString (this : Json) : string =
-        this.AsStringFormat CultureInfo.InvariantCulture        
+        this.AsStringFormat CultureInfo.InvariantCulture 
+
+    [<Extension>]
+    static member AsStringOrNone (this : Json, name : string) : string option =
+        match this.TryGet name with
+        | Some prop -> prop.AsString() |> Some
+        | None      -> None
     
     [<Extension>]
     static member AsInt16 (this : Json) : int16 =
         convertOrFail "Int16" asInt16 this
+
+    [<Extension>]
+    static member AsInt16OrNone (this : Json, name : string) : int16 option =
+        match this.TryGet name with
+        | Some prop -> convertOrFail "Int16" asInt16 prop |> Some
+        | None      -> None
     
     [<Extension>]
     static member AsInt32 (this : Json) : int32  =    
@@ -101,3 +109,4 @@ type JsonExtensions() =
 let (?) (json : Json) (name : string) : Json =
     json.Get name
 
+    
