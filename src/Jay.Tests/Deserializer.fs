@@ -1,4 +1,4 @@
-module Jay.Tests
+module Jay.Tests.Deserializer
 
 open System
 open FsUnit.Xunit
@@ -82,19 +82,131 @@ let ``Can convert missing optional string field to None``() =
     j.AsStringOrNone("name") |> should equal (None)
 
 [<Fact>]
-let ``Can convert missing optional int16 field to None``() =
-    let j = Json.parse "{ \"firstName\": \"Don\", \"lastName\": \"Syme\" }"
-    j.AsInt16OrNone("age") |> should equal (None)
-
-[<Fact>]
 let ``Can convert optional string field to Some``() =
     let j = Json.parse "{ \"firstName\": \"Don\", \"lastName\": \"Syme\" }"
     j.AsStringOrNone("firstName") |> should equal (Some "Don")
 
 [<Fact>]
+let ``Can convert missing optional int16 field to None``() =
+    let j = Json.parse "{ \"firstName\": \"Don\", \"lastName\": \"Syme\" }"
+    j.AsInt16OrNone("age") |> should equal (None)
+
+[<Fact>]
 let ``Can convert optional int16 field to Some``() =
-    let j = Json.parse "{ \"firstName\": \"Don\", \"lastName\": \"Syme\", \"age\": \"45\" }"
+    let j = Json.parse "{ \"firstName\": \"Don\", \"lastName\": \"Syme\", \"age\": 45 }"
     j.AsInt16OrNone("age") |> should equal (Some (int16 45))
+
+[<Fact>]
+let ``Can convert missing optional int32 field to None``() =
+    let j = Json.parse "{ \"firstName\": \"Don\", \"lastName\": \"Syme\" }"
+    j.AsInt32OrNone("age") |> should equal (None)
+
+[<Fact>]
+let ``Can convert optional int32 field to Some``() =
+    let j = Json.parse "{ \"firstName\": \"Don\", \"lastName\": \"Syme\", \"age\": 45 }"
+    j.AsInt32OrNone("age") |> should equal (Some (int32 45))
+
+[<Fact>]
+let ``Can convert missing optional int64 field to None``() =
+    let j = Json.parse "{ \"firstName\": \"Don\", \"lastName\": \"Syme\" }"
+    j.AsInt64OrNone("age") |> should equal (None)
+
+[<Fact>]
+let ``Can convert optional int64 field to Some``() =
+    let j = Json.parse "{ \"firstName\": \"Don\", \"lastName\": \"Syme\", \"age\": 45 }"
+    j.AsInt64OrNone("age") |> should equal (Some (int64 45))
+
+[<Fact>]
+let ``Can convert missing optional int field to None``() =
+    let j = Json.parse "{ \"firstName\": \"Don\", \"lastName\": \"Syme\" }"
+    j.AsIntOrNone("age") |> should equal (None)
+
+[<Fact>]
+let ``Can convert optional int field to Some``() =
+    let j = Json.parse "{ \"firstName\": \"Don\", \"lastName\": \"Syme\", \"age\": 45 }"
+    j.AsIntOrNone("age") |> should equal (Some (int 45))
+
+[<Fact>]
+let ``Can convert missing optional float field to None``() =
+    let j = Json.parse "{ \"firstName\": \"Don\", \"lastName\": \"Syme\" }"
+    j.AsFloatOrNone("height") |> should equal (None)
+
+[<Fact>]
+let ``Can convert optional float field to Some``() =
+    let j = Json.parse "{ \"firstName\": \"Don\", \"lastName\": \"Syme\", \"height\": 5.8 }"
+    j.AsFloatOrNone("height") |> should equal (Some (float 5.8m))
+
+[<Fact>]
+let ``Can convert missing optional decimal field to None``() =
+    let j = Json.parse "{ \"firstName\": \"Don\", \"lastName\": \"Syme\" }"
+    j.AsDecimalOrNone("height") |> should equal (None)
+
+[<Fact>]
+let ``Can convert optional decimal field to Some``() =
+    let j = Json.parse "{ \"firstName\": \"Don\", \"lastName\": \"Syme\", \"height\": 5.8 }"
+    j.AsDecimalOrNone("height") |> should equal (Some (decimal 5.8M))
+
+[<Fact>]
+let ``Can convert missing optional boolean field to None``() =
+    let j = Json.parse "{ \"firstName\": \"Don\", \"lastName\": \"Syme\" }"
+    j.AsBoolOrNone("isMale") |> should equal (None)
+
+[<Fact>]
+let ``Can convert optional boolean field to Some``() =
+    let j = Json.parse "{ \"firstName\": \"Don\", \"lastName\": \"Syme\", \"isMale\": \"true\" }"
+    j.AsBoolOrNone("isMale") |> should equal (Some true)
+
+[<Fact>]
+let ``Can convert optional iso 8601 date to None``() =
+    let j = Json.parse "{\"birthDate\": \"2020-05-19T14:39:22.500Z\"}"
+    j.AsDateTimeOrNone("birthDate1") |> should equal (None)    
+
+[<Fact>]
+let ``Can convert optional iso 8601 date to Some``() =
+    let j = Json.parse "{\"birthDate\": \"2020-05-19T14:39:22.500Z\"}"
+    j.AsDateTimeOrNone("birthDate") |> should equal (new DateTime(2020, 05, 19, 14, 39, 22, 500) |> Some)    
+
+[<Fact>]
+let ``Can convert optional unix epoch timestamp to None``() =
+    let j = Json.parse "{\"birthDate\": 1587147118004}"    
+    j.AsDateTimeOrNone("birthDate1") |> should equal (None)    
+
+[<Fact>]
+let ``Can convert optional unix epoch timestamp to Some``() =
+    let j = Json.parse "{\"birthDate\": 1587147118004}"    
+    j.AsDateTimeOrNone("birthDate") |> should equal (new DateTime(2020, 04, 17, 18, 11, 58, 4) |> Some)    
+
+[<Fact>]
+let ``Can convert optional datetimeoffset to None`` () =
+    let dtOffset = new DateTimeOffset(2020, 04, 17, 18, 11, 58, TimeSpan.FromHours(float -4));    
+    let j = Json.parse (sprintf "{\"birthDate\": \"%O\"}" dtOffset)    
+    j.AsDateTimeOffsetOrNone("birthDate1") |> should equal (None)    
+
+[<Fact>]
+let ``Can convert optional datetimeoffset to Some`` () =
+    let dtOffset = new DateTimeOffset(2020, 04, 17, 18, 11, 58, TimeSpan.FromHours(float -4));    
+    let j = Json.parse (sprintf "{\"birthDate\": \"%O\"}" dtOffset)    
+    j.AsDateTimeOffsetOrNone("birthDate") |> should equal (dtOffset |> Some)    
+
+[<Fact>]
+let ``Can convert optional timespan to None``() =
+    let j = Json.parse "{\"lapTime\": \"00:30:00\"}"    
+    j.AsTimeSpanOrNone("lapTime1") |> should equal (None)    
+
+[<Fact>]
+let ``Can convert optional timespan to Some``() =
+    let j = Json.parse "{\"lapTime\": \"00:30:00\"}"    
+    j.AsTimeSpanOrNone("lapTime") |> should equal (new TimeSpan(0, 30,0) |> Some)    
+
+[<Fact>]
+let ``Can convert optional guid to None``() =
+    let j = Json.parse "{ \"id\": \"{F842213A-82FB-4EEB-AB75-7CCD18676FD5}\" }"
+    j.AsGuidOrNone("id1") |> should equal (None)
+
+[<Fact>]
+let ``Can convert optional guid to Some``() =
+    let j = Json.parse "{ \"id\": \"{F842213A-82FB-4EEB-AB75-7CCD18676FD5}\" }"
+    j.AsGuidOrNone("id") |> should equal (Guid.Parse "F842213A-82FB-4EEB-AB75-7CCD18676FD5" |> Some)
 
 [<Fact>]
 let ``Can parse array of numbers``() =
@@ -109,62 +221,23 @@ let ``Quotes in strings are properly escaped``() =
     let j = Json.parse txt
     j |> Json.serialize |> should equal txt
 
-// Serialization
 [<Fact>]
-let ``Can serialize document with nothing``() =
-    let j = JObject [||] |> Json.serialize
-    j |> should equal "{}"
+let ``Can convert optional array to None``() =
+    let j = Json.parse "{ \"nos\": [1, 2, 3] }"
+    j.AsArrayOrNone("nos1") |> should equal (None)
 
 [<Fact>]
-let ``Can serialize document with string``() =
-    let txt = "{\"firstName\":\"John\"}"
-    let j = Json.parse txt
-    j |> Json.serialize |> should equal txt
+let ``Can convert optional array to Some``() =
+    let j = Json.parse "{ \"nos\": [1, 2, 3] }"
+    Option.get(j.AsArrayOrNone("nos")).Length |> should equal (3)
 
 [<Fact>]
-let ``Can serialize document with int``() =
-    let txt = "{\"firstName\":\"John\",\"age\":25}"
-    let j = Json.parse txt
-    j |> Json.serialize |> should equal txt
+let ``Can convert optional obj to None``() =
+    let j = Json.parse "{ \"name\": { \"firstName\": \"Don Syme\" } }"
+    j.AsArrayOrNone("name1") |> should equal (None)
 
 [<Fact>]
-let ``Can serialize document with bool``() =
-    let txt = "{\"firstName\":\"John\",\"employed\":false}"
-    let j = Json.parse txt
-    j |> Json.serialize |> should equal txt
+let ``Can convert optional obj to Some``() =
+    let j = Json.parse "{ \"name\": { \"firstName\": \"Don Syme\" } }"
+    Option.get(j.AsPropertyArrayOrNone("name")).Length |> should equal (1)
 
-[<Fact>]
-let ``Can serialize document with booleans``() =
-    JObject 
-        [| 
-            "aa", JBool true
-            "bb", JBool false 
-        |]
-    |> Json.serialize
-    |> should equal "{\"aa\":true,\"bb\":false}"
-
-[<Fact>]
-let ``Can serialize document with float``() =
-    let txt = "{\"firstName\":\"John\",\"age\":25.25}"
-    let j = Json.parse txt
-    j |> Json.serialize |> should equal txt
-
-[<Fact>]
-let ``Can serialize document with iso 8601 date``() =
-    let txt = "{\"birthDate\":\"2020-05-19T14:39:22.500Z\"}"
-    let j = Json.parse txt
-    j |> Json.serialize |> should equal txt
-
-
-[<Fact>]
-let ``Can serialize document with timespan``() =
-    let txt = "{\"lapTime\":\"00:30:00\"}"    
-    let j = Json.parse txt
-    j |> Json.serialize |> should equal txt
-
-[<Fact>]
-let ``Can serialize document with guid``() =
-    let txt = "{\"id\":\"{F842213A-82FB-4EEB-AB75-7CCD18676FD5}\"}"
-    let j = Json.parse txt
-    j |> Json.serialize |> should equal txt
-    
