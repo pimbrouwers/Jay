@@ -3,7 +3,6 @@ module Jay.JsonParser
 
 open System
 open System.Globalization
-open System.IO
 open System.Text
 
 module internal UnicodeHelper =
@@ -22,14 +21,45 @@ module internal UnicodeHelper =
 
         char leadSurrogate, char trailSurrogate
 
+    let unicodeChar8 (s: ReadOnlySpan<char>) =
+        if s.Length <> 8 then
+            failwith "unicodeChar"
+
+        if not (s.[0] = '0' && s.[1] = '0') then
+            failwith "unicodeChar"
+
+        getUnicodeSurrogatePair
+        <| UInt32.Parse(s, NumberStyles.HexNumber)
+
+
+    let hexdigit d =
+        if d >= '0' && d <= '9' then
+            int32 d - int32 '0'
+        elif d >= 'a' && d <= 'f' then
+            int32 d - int32 'a' + 10
+        elif d >= 'A' && d <= 'F' then
+            int32 d - int32 'A' + 10
+        else
+            failwith "hexdigit"
+
+    let unicodeChar4 (s: ReadOnlySpan<char>) =
+        if s.Length <> 4 then
+            failwith "unicodeChar"
+
+        char (
+            hexdigit s.[0] * 4096
+            + hexdigit s.[1] * 256
+            + hexdigit s.[2] * 16
+            + hexdigit s.[3]
+        )
+
 type internal JsonParser(jsonText: string) =
     let mutable i = 0
-    let s = jsonText
 
     let buf = StringBuilder() // pre-allocate buffers for strings
 
     // Helper functions
-    let skipWhitespace () =
+    let skipWhitespace (s: ReadOnlySpan<char>) =
         while i < s.Length && Char.IsWhiteSpace s.[i] do
             i <- i + 1
 
@@ -57,21 +87,21 @@ type internal JsonParser(jsonText: string) =
     let ensure cond = if not cond then throw ()
 
     // Recursive descent parser for JSON that uses global mutable index
-    let rec parseValue () =
-        skipWhitespace ()
+    let rec parseValue (s) =
+        skipWhitespace (s)
         ensure (i < s.Length)
 
         match s.[i] with
-        | '"' -> JString(parseString ())
-        | '-' -> parseNum ()
-        | c when Char.IsDigit(c) -> parseNum ()
-        | '{' -> parseObject ()
-        | '[' -> parseArray ()
-        | 't' -> parseLiteral ("true", JBool true)
-        | 'f' -> parseLiteral ("false", JBool false)
-        | 'n' -> parseLiteral ("null", JNull)
+        | '"' -> JString(parseString (s))
+        | '-' -> parseNum (s)
+        | c when Char.IsDigit(c) -> parseNum (s)
+        | '{' -> parseObject (s)
+        | '[' -> parseArray (s)
+        | 't' -> parseLiteral (s, "true", JBool true)
+        | 'f' -> parseLiteral (s, "false", JBool false)
+        | 'n' -> parseLiteral (s, "null", JNull)
         | _ -> throw ()
-    and parseString () =
+    and parseString (s: ReadOnlySpan<char>) =
         ensure (i < s.Length && s.[i] = '"')
         i <- i + 1
 
@@ -91,44 +121,17 @@ type internal JsonParser(jsonText: string) =
                 | 'u' ->
                     ensure (i + 5 < s.Length)
 
-                    let hexdigit d =
-                        if d >= '0' && d <= '9' then
-                            int32 d - int32 '0'
-                        elif d >= 'a' && d <= 'f' then
-                            int32 d - int32 'a' + 10
-                        elif d >= 'A' && d <= 'F' then
-                            int32 d - int32 'A' + 10
-                        else
-                            failwith "hexdigit"
+                    let ch =
+                        UnicodeHelper.unicodeChar4 (s.Slice(i + 2, 4))
 
-                    let unicodeChar (s: string) =
-                        if s.Length <> 4 then
-                            failwith "unicodeChar"
-
-                        char (
-                            hexdigit s.[0] * 4096
-                            + hexdigit s.[1] * 256
-                            + hexdigit s.[2] * 16
-                            + hexdigit s.[3]
-                        )
-
-                    let ch = unicodeChar (s.Substring(i + 2, 4))
                     buf.Append(ch) |> ignore
                     i <- i + 4 // the \ and u will also be skipped past further below
                 | 'U' ->
                     ensure (i + 9 < s.Length)
 
-                    let unicodeChar (s: string) =
-                        if s.Length <> 8 then
-                            failwith "unicodeChar"
+                    let lead, trail =
+                        UnicodeHelper.unicodeChar8 (s.Slice(i + 2, 8))
 
-                        if s.[0..1] <> "00" then
-                            failwith "unicodeChar"
-
-                        UnicodeHelper.getUnicodeSurrogatePair
-                        <| UInt32.Parse(s, NumberStyles.HexNumber)
-
-                    let lead, trail = unicodeChar (s.Substring(i + 2, 8))
                     buf.Append(lead) |> ignore
                     buf.Append(trail) |> ignore
                     i <- i + 8 // the \ and u will also be skipped past further below
@@ -145,66 +148,66 @@ type internal JsonParser(jsonText: string) =
         let str = buf.ToString()
         buf.Clear() |> ignore
         str
-    and parseNum () =
+    and parseNum (s: ReadOnlySpan<char>) =
         let start = i
 
         while i < s.Length && (isNumChar s.[i]) do
             i <- i + 1
 
         let len = i - start
-        let sub = s.Substring(start, len)
+        let sub = s.Slice(start, len)
 
-        match StringParser.parseFloat CultureInfo.InvariantCulture sub with
+        match SpanParser.parseFloat CultureInfo.InvariantCulture sub with
         | Some x -> JNumber x
         | _ -> throw ()
-    and parsePair () =
-        let key = parseString ()
-        skipWhitespace ()
+    and parsePair (s: ReadOnlySpan<char>) =
+        let key = parseString (s)
+        skipWhitespace (s)
         ensure (i < s.Length && s.[i] = ':')
         i <- i + 1
-        skipWhitespace ()
-        key, parseValue ()
-    and parseObject () =
+        skipWhitespace (s)
+        key, parseValue (s)
+    and parseObject (s: ReadOnlySpan<char>) =
         ensure (i < s.Length && s.[i] = '{')
         i <- i + 1
-        skipWhitespace ()
+        skipWhitespace (s)
 
         let pairs = ResizeArray<_>()
 
         if i < s.Length && s.[i] = '"' then
-            pairs.Add(parsePair ())
-            skipWhitespace ()
+            pairs.Add(parsePair (s))
+            skipWhitespace (s)
 
             while i < s.Length && s.[i] = ',' do
                 i <- i + 1
-                skipWhitespace ()
-                pairs.Add(parsePair ())
-                skipWhitespace ()
+                skipWhitespace (s)
+                pairs.Add(parsePair (s))
+                skipWhitespace (s)
 
         ensure (i < s.Length && s.[i] = '}')
         i <- i + 1
         JObject(pairs.ToArray())
-    and parseArray () =
+    and parseArray (s: ReadOnlySpan<char>) =
         ensure (i < s.Length && s.[i] = '[')
         i <- i + 1
-        skipWhitespace ()
+        skipWhitespace (s)
 
         let vals = ResizeArray<_>()
 
         if i < s.Length && s.[i] <> ']' then
-            vals.Add(parseValue ())
-            skipWhitespace ()
+            vals.Add(parseValue (s))
+            skipWhitespace (s)
 
             while i < s.Length && s.[i] = ',' do
                 i <- i + 1
-                skipWhitespace ()
-                vals.Add(parseValue ())
-                skipWhitespace ()
+                skipWhitespace (s)
+                vals.Add(parseValue (s))
+                skipWhitespace (s)
 
         ensure (i < s.Length && s.[i] = ']')
         i <- i + 1
         JArray(vals.ToArray())
-    and parseLiteral (expected, r) =
+    and parseLiteral (s, expected, r) =
         ensure (i + expected.Length <= s.Length)
 
         for j in 0 .. expected.Length - 1 do
@@ -215,7 +218,8 @@ type internal JsonParser(jsonText: string) =
 
     // Start by parsing the top-level value
     member _.Parse() =
-        let value = parseValue ()
-        skipWhitespace ()
+        let s = jsonText.AsSpan()
+        let value = parseValue (s)
+        skipWhitespace (s)
         if i <> s.Length then throw ()
         value

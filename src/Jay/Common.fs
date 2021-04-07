@@ -61,3 +61,60 @@ module internal StringParser =
 
     let parseBoolean = parseWith Boolean.TryParse
     let parseGuid = parseWith Guid.TryParse
+
+[<AutoOpen>]
+module internal SpanParser =
+    let inline toOption (parsedResult: bool * _) =
+        match parsedResult with
+        | true, v -> Some v
+        | false, _ -> None
+
+    let parseInt16 (cul: CultureInfo) (spn: ReadOnlySpan<char>) =
+        Int16.TryParse(spn, NumberStyles.Currency, CultureInfo.InvariantCulture)
+        |> toOption
+
+    let parseInt32 (cul: CultureInfo) (spn: ReadOnlySpan<char>) =
+        Int32.TryParse(spn, NumberStyles.Currency, CultureInfo.InvariantCulture)
+        |> toOption
+
+    let parseUInt32 (cul: CultureInfo) (spn: ReadOnlySpan<char>) =
+        UInt32.Parse(spn, NumberStyles.Currency, CultureInfo.InvariantCulture)
+
+    let parseInt64 (cul: CultureInfo) (spn: ReadOnlySpan<char>) =
+        Int64.TryParse(spn, NumberStyles.Currency, CultureInfo.InvariantCulture)
+        |> toOption
+
+    let parseInt cul spn = parseInt32 cul spn
+
+    let parseFloat (cul: CultureInfo) (spn: ReadOnlySpan<char>) =
+        Double.TryParse(spn, NumberStyles.Currency, CultureInfo.InvariantCulture)
+        |> toOption
+
+    let parseDecimal (cul: CultureInfo) (spn: ReadOnlySpan<char>) =
+        Decimal.TryParse(spn, NumberStyles.Currency, CultureInfo.InvariantCulture)
+        |> toOption
+
+    let parseDateTime (cul: CultureInfo) (spn: ReadOnlySpan<char>) =
+        DateTime.TryParse(
+            spn,
+            CultureInfo.InvariantCulture,
+            DateTimeStyles.AllowWhiteSpaces
+            ||| DateTimeStyles.RoundtripKind
+        )
+        |> toOption
+
+    let parseDateTimeOffset (cul: CultureInfo) (spn: ReadOnlySpan<char>) =
+        DateTime.TryParse(
+            spn,
+            CultureInfo.InvariantCulture,
+            DateTimeStyles.AllowWhiteSpaces
+            ||| DateTimeStyles.RoundtripKind
+        )
+        |> toOption
+
+    let parseTimeSpan (cul: CultureInfo) (spn: ReadOnlySpan<char>) =
+        TimeSpan.TryParse(spn, CultureInfo.InvariantCulture)
+        |> toOption
+
+    let parseBoolean (spn: ReadOnlySpan<char>) = Boolean.TryParse(spn) |> toOption
+    let parseGuid (spn: ReadOnlySpan<char>) = Guid.TryParse(spn) |> toOption

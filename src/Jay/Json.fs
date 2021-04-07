@@ -5,6 +5,7 @@ open System
 open System.IO
 
 module Json =
+
     let parse (str: string) = JsonParser(str).Parse()
 
     let parseStream (str: Stream) =

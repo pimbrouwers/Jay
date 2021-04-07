@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
   </PropertyGroup>
 
   <PropertyGroup>
@@ -20,7 +20,7 @@
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
-    <TargetFramework>netstandard2.0</TargetFramework>
+    <TargetFramework>net5.0</TargetFramework>
 
     <!-- NuGet config -->
     <PackageId>Jay</PackageId>
@@ -39,6 +39,7 @@
 
   <ItemGroup>
     <PackageReference Include="FSharp.Core" Version="5.0.1" />
+    <PackageReference Include="System.Memory" Version="4.5.4" />
   </ItemGroup>
   
   <ItemGroup>

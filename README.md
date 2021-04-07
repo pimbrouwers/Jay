@@ -127,6 +127,145 @@ F# being so terse, it actually turns out that it is incredible practical to *map
 
 The aim of this library was to take the core JSON parser from the amazing [FSharp.Data](https://github.com/fsharp/FSharp.Data/) project, and modernize/simplify it's API. The hopes of this effort is to make JSON more approachable and easier to reason about for newcomers to the language.
 
+## More Helpers
+
+### Handling optional types
+
+In the below snippet, the json property `id_str` has been explicitly set to `null` and the `text` property is missing. The corresponding record fields have been defined as option<string>.
+
+We use `TryGet("property")` to decode an optional property. And `AsStringOrNone()` method to decode a nullable property. 
+
+```f#
+let json = """
+    {
+     "id": 1050118621198921728,
+     "id_str": null
+    }
+    """
+
+type Tweet =
+    { Id: int64
+      IdStr: string option
+      Text: string option }
+
+module Tweet =
+    let fromJson (json: Json) =
+        { Id = json.Get("id").AsInt64()
+          IdStr = json.Get("id_str").AsStringOrNone()
+          Text = json.TryGet("text").AsStringOrNone() }
+
+
+json |> Json.parse |> Tweet.fromJson |> printfn "%A"
+
+```
+
+### Getting nested properties
+
+The below snippets, shows how you may swoop into a deeply nested Json schema and construct domain objects easily.
+
+#### Dot syntax
+
+```f#
+open Jay
+open Jay.Json
+
+let json = """
+    {
+     "level1":
+        { "level2":
+            { "MyField": "My nested field"}
+        }
+    }
+    """
+
+type MyRecord = { MyNestedField: string option }
+
+module Tweet =
+    let fromJson (json: Json) =
+        { MyNestedField =
+              json
+                  .Get("level1")
+                  .TryGet("level2")
+                  .TryGet("MyField")
+                  .AsStringOrNone() }
+
+
+json |> Json.parse |> Tweet.fromJson |> printfn "%A"
+
+```
+
+#### Pipeline syntax
+
+The same maybe accomplished using a decode pipeline 
+
+```f#
+open Jay
+open Jay.Json
+
+let json = """
+    {
+     "level1":
+        { "level2":
+            { "MyField": "My nested field"}
+        }
+    }
+    """
+
+type MyRecord = { MyNestedField: string option }
+
+module Tweet =
+    let fromJson (json: Json) =
+        { MyNestedField =
+              json
+              |> Json.get ("level1")
+              |> Json.tryGet ("level2")
+              |> Json.Optional.tryGet ("MyField")
+              |> JsonExtensions.AsStringOrNone }
+
+
+json |> Json.parse |> Tweet.fromJson |> printfn "%A"
+```
+
+#### Custom operators
+
+The package defines some custom operators for constructing terse decode pipelines
+
+```
+Optional on the both sides
+( <??> ): Json option -> property: string -> Json option
+
+Not Optional
+( </> ): Json -> property: string -> Json
+
+Optional on the right
+( </?> ): Json -> property: string -> Json option
+```
+
+```f#
+open Jay
+open Jay.Json
+
+let json = """
+    {
+     "level1":
+        { "level2":
+            { "MyField": "My nested field"}
+        }
+    }
+    """
+
+type MyRecord = { MyNestedField: string option }
+
+module Tweet =
+    let fromJson (json: Json) =
+        { MyNestedField =
+              (json </> "level1" </?> "level2" <??> "MyField")
+                  .AsStringOrNone() }
+
+
+json |> Json.parse |> Tweet.fromJson |> printfn "%A"
+
+```
 ## Find a bug?
 
 There's an [issue](https://github.com/pimbrouwers/Jay/issues) for that.
