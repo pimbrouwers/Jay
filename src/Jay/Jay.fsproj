@@ -44,6 +44,7 @@
   
   <ItemGroup>
     <Compile Include="Common.fs" />
+    <Compile Include="Exception.fs" />
     <Compile Include="JsonParser.fs" />
     <Compile Include="Json.fs" />
     <Compile Include="JsonConvert.fs" />

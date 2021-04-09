@@ -32,7 +32,7 @@ type JsonExtensions() =
     static member Get(this: Json, name: string) : Json =
         match this.TryGet(name) with
         | Some prop -> prop
-        | None -> failwithf "Property %s does not exist" name
+        | None -> raise (PropertyNotFoundException $"Property '{name}' does not exist in JSON")
 
     [<Extension>]
     static member Get(this: Json option, name: string) : Json =
@@ -40,21 +40,22 @@ type JsonExtensions() =
         | Some json ->
             match json.TryGet(name) with
             | Some prop -> prop
-            | None -> failwithf "Property %s does not exist" name
-        | None -> failwithf "Property %s does not exist" name
+            | None -> raise (PropertyNotFoundException $"Property '{name}' does not exist in JSON")
+        | None -> raise (PropertyNotFoundException $"Property '{name}' does not exist in JSON")
 
     [<Extension>]
     static member AsPropertyArray(this: Json) =
         match this with
         | JObject properties -> properties
-        | _ -> [||] // Do we need to fail here
+        | _ -> raise (InvalidPropertyTypeException $"Expected an 'object/map' in JSON. Got - {Json.serialize (this)}")
 
     [<Extension>]
     static member AsPropertyArrayOrNone(this: Json) =
         match this with
         | JObject properties -> Some properties
         | JNull -> None
-        | _ -> failwithf "%s is not a valid property array" (Json.serialize this)
+        | _ -> raise (InvalidPropertyTypeException $"Expected an 'object/map' in JSON. Got - {Json.serialize (this)}")
+
 
     [<Extension>]
     static member AsPropertyArrayOrNone(this: Json option) =
@@ -63,7 +64,9 @@ type JsonExtensions() =
             match prop with
             | JObject properties -> Some properties
             | JNull -> None
-            | _ -> failwithf "%s is not a valid property array" (Json.serialize prop)
+            | _ ->
+                raise (InvalidPropertyTypeException $"Expected an 'object/map' in JSON. Got - {Json.serialize (prop)}")
+
 
         | None -> None
 
@@ -71,14 +74,14 @@ type JsonExtensions() =
     static member AsArray(this: Json) : Json [] =
         match this with
         | JArray a -> a
-        | _ -> [||] // Do we need to fail here.
+        | _ -> raise (InvalidPropertyTypeException $"Expected an 'array' in JSON. Got - {Json.serialize (this)}")
 
     [<Extension>]
     static member AsArrayOrNone(this: Json) : Json [] option =
         match this with
         | JArray a -> Some a
         | JNull -> None
-        | _ -> failwithf "%s is not a valid array" (Json.serialize this) // Something was found and its not an array
+        | _ -> raise (InvalidPropertyTypeException $"Expected an 'array' in JSON. Got - {Json.serialize (this)}")
 
 
     [<Extension>]
@@ -88,7 +91,7 @@ type JsonExtensions() =
             match prop with
             | JArray a -> Some a
             | JNull -> None
-            | _ -> failwithf "%s is not a valid array" (Json.serialize prop) // Something was found and its not an array
+            | _ -> raise (InvalidPropertyTypeException $"Expected an 'array' in JSON. Got - {Json.serialize (prop)}")
 
         | None -> None
 
@@ -102,7 +105,7 @@ type JsonExtensions() =
     static member AsStringFormat(this: Json, cul: CultureInfo) : string =
         match this.TryStringFormat cul with
         | Some s -> s
-        | None -> failwithf "%s is not a string" (Json.serialize this)
+        | None -> raise (InvalidPropertyTypeException $"Expected a 'string' in JSON. Got - {Json.serialize (this)}")
 
     [<Extension>]
     static member AsString(this: Json) : string =

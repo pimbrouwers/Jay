@@ -23,10 +23,10 @@ module internal UnicodeHelper =
 
     let unicodeChar8 (s: ReadOnlySpan<char>) =
         if s.Length <> 8 then
-            failwith "unicodeChar"
+            raise (InvalidCharacterException $"Unicode char {s.ToString()}")
 
         if not (s.[0] = '0' && s.[1] = '0') then
-            failwith "unicodeChar"
+            raise (InvalidCharacterException $"Unicode char {s.ToString()}")
 
         getUnicodeSurrogatePair
         <| UInt32.Parse(s, NumberStyles.HexNumber)
@@ -44,14 +44,16 @@ module internal UnicodeHelper =
 
     let unicodeChar4 (s: ReadOnlySpan<char>) =
         if s.Length <> 4 then
-            failwith "unicodeChar"
+            raise (InvalidCharacterException $"Invalid unicode char in JSON - {s.ToString()}")
 
-        char (
-            hexdigit s.[0] * 4096
-            + hexdigit s.[1] * 256
-            + hexdigit s.[2] * 16
-            + hexdigit s.[3]
-        )
+        try
+            char (
+                hexdigit s.[0] * 4096
+                + hexdigit s.[1] * 256
+                + hexdigit s.[2] * 16
+                + hexdigit s.[3]
+            )
+        with _ -> raise (InvalidCharacterException $"Invalid unicode char in JSON - {s.ToString()}")
 
 type internal JsonParser(jsonText: string) =
     let mutable i = 0
@@ -82,7 +84,7 @@ type internal JsonParser(jsonText: string) =
                  else
                      jsonText)
 
-        failwith msg
+        raise (JsonParserException msg)
 
     let ensure cond = if not cond then throw ()
 
