@@ -12,16 +12,16 @@ let json = """
     }
     """
 
-type MyRecord = { MyNestedField: Json [] option }
+type MyRecord = { MyNestedField: string option }
 
 module Tweet =
     let fromJson (json: Json) =
         { MyNestedField =
               json
-              |> Json.get ("level1")
-              |> Json.tryGet ("level2")
-              |> Json.Optional.tryGet ("MyField")
-              |> JsonExtensions.AsArrayOrNone }
+              |> Json.get "level1"
+              |> Json.tryGet "level2"
+              |> Json.Optional.tryGet "MyField"
+              |> JsonExtensions.AsStringOrNone }
 
 
 json

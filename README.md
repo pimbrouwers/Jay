@@ -161,7 +161,7 @@ json |> Json.parse |> Tweet.fromJson |> printfn "%A"
 
 ### Getting nested properties
 
-The below snippets, shows how you may swoop into a deeply nested Json schema and construct domain objects easily.
+The below snippets, shows how to swoop into a deeply nested Json schema and construct domain objects easily.
 
 #### Dot syntax
 
@@ -217,9 +217,9 @@ module Tweet =
     let fromJson (json: Json) =
         { MyNestedField =
               json
-              |> Json.get ("level1")
-              |> Json.tryGet ("level2")
-              |> Json.Optional.tryGet ("MyField")
+              |> Json.get "level1"
+              |> Json.tryGet "level2"
+              |> Json.Optional.tryGet "MyField"
               |> JsonExtensions.AsStringOrNone }
 
 
