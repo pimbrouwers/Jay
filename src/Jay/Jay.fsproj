@@ -49,6 +49,7 @@
     <Compile Include="Json.fs" />
     <Compile Include="JsonConvert.fs" />
     <Compile Include="JsonExtensions.fs" />
+    <Compile Include="Operators.fs" />
   </ItemGroup>
 
 </Project>

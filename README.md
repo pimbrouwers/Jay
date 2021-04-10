@@ -136,6 +136,8 @@ In the below snippet, the json property `id_str` has been explicitly set to `nul
 We use `TryGet("property")` to decode an optional property. And `AsStringOrNone()` method to decode a nullable property. 
 
 ```f#
+open Jay
+
 let json = """
     {
      "id": 1050118621198921728,
@@ -161,7 +163,7 @@ json |> Json.parse |> Tweet.fromJson |> printfn "%A"
 
 ### Getting nested properties
 
-The below snippets, shows how to swoop into a deeply nested Json schema and construct domain objects easily.
+The below snippets, show how to swoop into a deeply nested Json structures and construct domain objects easily.
 
 #### Dot syntax
 
@@ -200,7 +202,6 @@ The same maybe accomplished using a decode pipeline
 
 ```f#
 open Jay
-open Jay.Json
 
 let json = """
     {
@@ -220,8 +221,7 @@ module Tweet =
               |> Json.get "level1"
               |> Json.tryGet "level2"
               |> Json.Optional.tryGet "MyField"
-              |> JsonExtensions.AsStringOrNone }
-
+              |> Decode.AsStringOrNone }
 
 json |> Json.parse |> Tweet.fromJson |> printfn "%A"
 ```
@@ -259,8 +259,8 @@ type MyRecord = { MyNestedField: string option }
 module Tweet =
     let fromJson (json: Json) =
         { MyNestedField =
-              (json </> "level1" </?> "level2" <??> "MyField")
-                  .AsStringOrNone() }
+              json </> "level1" </?> "level2" <??> "MyField"
+              |> Decode.AsStringOrNone }
 
 
 json |> Json.parse |> Tweet.fromJson |> printfn "%A"
