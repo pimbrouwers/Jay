@@ -3,9 +3,9 @@
 [![NuGet Version](https://img.shields.io/nuget/v/Jay.svg)](https://www.nuget.org/packages/Jay)
 [![Build Status](https://travis-ci.org/pimbrouwers/Jay.svg?branch=master)](https://travis-ci.org/pimbrouwers/Jay)
 
-## Getting Started
+The aim of this library was to take the core JSON parser from the amazing [FSharp.Data](https://github.com/fsharp/FSharp.Data/) project, and modernize/simplify it's API.
 
-This library aims to make working with JSON in F# much simpler.
+## Getting Started
 
 Install the [Jay](https://www.nuget.org/packages/Jay/) NuGet package:
 
@@ -114,18 +114,7 @@ let json =
     |> Json.serialize
 ```
 
-And that's it! Not so painful was it?
-
-
-## A little background
-
-If you're a newcomer to F#, it can be confusing how to handle JSON since there is no commonly accepted approach. Especially if you're coming from C# where you'd normally rely on a reflection-based deserializer. Not requiring you to do anything other than define a class for the JSON to be deserialized into.
-
-Of course F# has JSON type providers, which effectively amount to the same result. Except they generate the types  for you based on sampling the actual JSON you're intending to consume. If you're doing quick-and-dirty exploratory work, type providers are immensely useful. 
-
-F# being so terse, it actually turns out that it is incredible practical to *map your own* JSON (as well as any other IO entry points - see [Donald](https://github.com/pimbrouwers/Donald)). At first this sounds crazy. But if you consider that these IO boundaries are common places for faults. It behoves you to be explicit in those places.
-
-The aim of this library was to take the core JSON parser from the amazing [FSharp.Data](https://github.com/fsharp/FSharp.Data/) project, and modernize/simplify it's API. The hopes of this effort is to make JSON more approachable and easier to reason about for newcomers to the language.
+And that's it!
 
 ## Find a bug?
 
