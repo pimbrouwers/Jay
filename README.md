@@ -29,14 +29,14 @@ Let's consider a stripped down [Tweet object](https://developer.twitter.com/en/d
  "created_at": "Wed Oct 10 20:19:24 +0000 2018",
  "id": 1050118621198921728,
  "id_str": "1050118621198921728",
- "text": "To make room for more expression, we will now count all emojis as equal—including those with gender‍‍‍ ‍‍and skin t… https://t.co/MkGjXf9aXm", 
+ "text": "To make room for more expression, we will now count all emojis as equal—including those with gender‍‍‍ ‍‍and skin t… https://t.co/MkGjXf9aXm",
 }
 ```
 
 In order to work with this in our F# program, we'll first need to create a [record type](https://docs.microsoft.com/en-us/dotnet/fsharp/language-reference/records).
 
 ```f#
-type Tweet = 
+type Tweet =
     {
         CreatedAt : DateTimeOffset
         Id        : int64
@@ -48,7 +48,7 @@ type Tweet =
 Next we'll define a module with the same name, `Tweet`, and a function called `fromJson` to consume our JSON and return a `Tweet` record.
 
 ```f#
-type Tweet = 
+type Tweet =
     {
         CreatedAt : DateTimeOffset
         Id        : int64
@@ -67,7 +67,7 @@ module Tweet =
 
 
 let tweetJson = ... // JSON from above
-let tweet = 
+let tweet =
     tweetJson
     |> Json.parse
     |> Tweet.fromJson
@@ -76,7 +76,7 @@ let tweet =
 Finally, we'll create another function `toJson` to convert our record back into JSON represented as an [abstract syntax tree](https://en.wikipedia.org/wiki/Abstract_syntax_tree).
 
 ```f#
-type Tweet = 
+type Tweet =
     {
         CreatedAt : DateTimeOffset
         Id        : int64
@@ -94,7 +94,7 @@ module Tweet =
         }
 
     let toJson (tweet : Tweet) =
-        JObject 
+        JObject
             [|
                 "created_at", JString (tweet.CreatedAt.ToString())
                 "id",         JNumber (float tweet.Id)
@@ -103,7 +103,7 @@ module Tweet =
             |]
 
 let tweetJson = ... // JSON from above
-let tweet = 
+let tweet =
     tweetJson
     |> Json.parse
     |> Tweet.fromJson
@@ -122,4 +122,4 @@ There's an [issue](https://github.com/pimbrouwers/Jay/issues) for that.
 
 ## License
 
-Built with ♥ by [Pim Brouwers](https://github.com/pimbrouwers) in Toronto, ON. Licensed under [Apache License 2.0](https://github.com/pimbrouwers/Jay/blob/master/LICENSE).
+Licensed under [MIT](https://github.com/pimbrouwers/Jay/blob/master/LICENSE).

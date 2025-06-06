@@ -6,7 +6,7 @@
 
   <PropertyGroup>
     <AssemblyName>Jay</AssemblyName>
-    <Version>1.0.0</Version>
+    <Version>1.0.3</Version>
 
     <!-- General info -->
     <Description>An idiomatic F# JSON parser and serializer</Description>
@@ -21,11 +21,9 @@
     <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <TargetFramework>netstandard2.0</TargetFramework>
-    <DisableImplicitFSharpCoreReference>true</DisableImplicitFSharpCoreReference>
 
     <!-- NuGet config -->
     <PackageId>Jay</PackageId>
-    <PackageVersion>1.0.2</PackageVersion>
     <PackageTags>fsharp;functional;json</PackageTags>
     <PackageProjectUrl>https://github.com/pimbrouwers/Jay</PackageProjectUrl>
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
@@ -36,18 +34,28 @@
     <!-- SourceLink settings -->
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
+    <IncludeSymbols>true</IncludeSymbols>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Update="FSharp.Core" Version="4.5.2" />
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.*" PrivateAssets="All" />
   </ItemGroup>
-  
+
   <ItemGroup>
     <Compile Include="Common.fs" />
     <Compile Include="JsonParser.fs" />
     <Compile Include="Json.fs" />
     <Compile Include="JsonConvert.fs" />
     <Compile Include="JsonExtensions.fs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="../../README.md" Pack="true" PackagePath="\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="*.fsproj; **\*.fs; **\*.fsi" PackagePath="fable\" />
   </ItemGroup>
 
 </Project>

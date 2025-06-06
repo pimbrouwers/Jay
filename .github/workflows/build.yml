@@ -1,0 +1,26 @@
+name: build
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET Core SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 9.0.x
+
+      - name: Install dependencies
+        run: dotnet restore src/Jay
+
+      - name: Build
+        run: dotnet build src/Jay -c Release
+
+      - name: Test
+        run: dotnet test test/Jay.Tests -c Release
