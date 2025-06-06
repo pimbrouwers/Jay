@@ -1,16 +1,29 @@
 # Jay
 
 [![NuGet Version](https://img.shields.io/nuget/v/Jay.svg)](https://www.nuget.org/packages/Jay)
-[![Build Status](https://travis-ci.org/pimbrouwers/Jay.svg?branch=master)](https://travis-ci.org/pimbrouwers/Jay)
+[![build](https://github.com/pimbrouwers/Jay/actions/workflows/build.yml/badge.svg)](https://github.com/pimbrouwers/Jay/actions/workflows/build.yml)
 
 The aim of this library was to take the core JSON parser from the amazing [FSharp.Data](https://github.com/fsharp/FSharp.Data/) project, and modernize/simplify it's API.
+
+## Key Features
+
+- Parse JSON from strings, streams, and files.
+- Simple and powerful JSON syntax tree.
+- Easy conversion between JSON and F# record types.
+- Support for primitive type conversions (e.g., `AsString`, `AsInt64`, `AsDateTimeOffset`).
+
+## Design Goals
+
+- Provide a simple means for working with complex JSON structures in F#.
+- Define an abstract syntax tree (AST) for JSON that is easy to work with.
+- Support for parsing JSON from strings, streams, and files.
 
 ## Getting Started
 
 Install the [Jay](https://www.nuget.org/packages/Jay/) NuGet package:
 
 ```
-PM>  Install-Package Jay
+PM> Install-Package Jay
 ```
 
 Or using the dotnet CLI
