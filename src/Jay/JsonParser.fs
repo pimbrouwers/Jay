@@ -26,10 +26,6 @@ type internal JsonParser(jsonText:string) =
     let buf = StringBuilder() // pre-allocate buffers for strings
 
     // Helper functions
-    let skipWhitespace() =
-      while i < s.Length && Char.IsWhiteSpace s.[i] do
-        i <- i + 1
-    
     let isNumChar c =
       Char.IsDigit c || c = '.' || c='e' || c='E' || c='+' || c='-'
     
@@ -43,9 +39,41 @@ type internal JsonParser(jsonText:string) =
     let ensure cond =
       if not cond then throw()
 
+    let rec skipCommentsAndWhitespace () =
+        let skipComment () =
+            // Supported comment syntax:
+            // - // ...{newLine}
+            // - /* ... */
+            if i < s.Length && s.[i] = '/' then
+                i <- i + 1
+
+                if i < s.Length && s.[i] = '/' then
+                    i <- i + 1
+                    while i < s.Length && (s.[i] <> '\r' && s.[i] <> '\n') do
+                        i <- i + 1
+                else if i < s.Length && s.[i] = '*' then
+                    i <- i + 1
+                    while i + 1 < s.Length && s.[i] <> '*' && s.[i + 1] <> '/' do
+                        i <- i + 1
+                    ensure (i + 1 < s.Length && s.[i] = '*' && s.[i + 1] = '/')
+                    i <- i + 2
+                true
+
+            else
+                false
+
+        let skipWhitespace () =
+            let initialI = i
+            while i < s.Length && Char.IsWhiteSpace s.[i] do
+                i <- i + 1
+            initialI <> i // return true if some whitespace was skipped
+
+        if skipWhitespace () || skipComment () then
+            skipCommentsAndWhitespace ()
+
     // Recursive descent parser for JSON that uses global mutable index
     let rec parseValue() =
-        skipWhitespace()
+        skipCommentsAndWhitespace()
         ensure(i < s.Length)
         match s.[i] with
         | '"' -> JString(parseString())
@@ -119,25 +147,25 @@ type internal JsonParser(jsonText:string) =
 
     and parsePair() =
         let key = parseString()
-        skipWhitespace()
+        skipCommentsAndWhitespace()
         ensure(i < s.Length && s.[i] = ':')
         i <- i + 1
-        skipWhitespace()
+        skipCommentsAndWhitespace()
         key, parseValue()
 
     and parseObject() =
         ensure(i < s.Length && s.[i] = '{')
         i <- i + 1
-        skipWhitespace()
+        skipCommentsAndWhitespace()
         let pairs = ResizeArray<_>()
         if i < s.Length && s.[i] = '"' then
             pairs.Add(parsePair())
-            skipWhitespace()
+            skipCommentsAndWhitespace()
             while i < s.Length && s.[i] = ',' do
                 i <- i + 1
-                skipWhitespace()
+                skipCommentsAndWhitespace()
                 pairs.Add(parsePair())
-                skipWhitespace()
+                skipCommentsAndWhitespace()
         ensure(i < s.Length && s.[i] = '}')
         i <- i + 1
         JObject(pairs.ToArray())
@@ -145,16 +173,16 @@ type internal JsonParser(jsonText:string) =
     and parseArray() =
         ensure(i < s.Length && s.[i] = '[')
         i <- i + 1
-        skipWhitespace()
+        skipCommentsAndWhitespace()
         let vals = ResizeArray<_>()
         if i < s.Length && s.[i] <> ']' then
             vals.Add(parseValue())
-            skipWhitespace()
+            skipCommentsAndWhitespace()
             while i < s.Length && s.[i] = ',' do
                 i <- i + 1
-                skipWhitespace()
+                skipCommentsAndWhitespace()
                 vals.Add(parseValue())
-                skipWhitespace()
+                skipCommentsAndWhitespace()
         ensure(i < s.Length && s.[i] = ']')
         i <- i + 1
         JArray(vals.ToArray())
@@ -169,7 +197,7 @@ type internal JsonParser(jsonText:string) =
     // Start by parsing the top-level value
     member _.Parse() =
         let value = parseValue()
-        skipWhitespace()
+        skipCommentsAndWhitespace()
         if i <> s.Length then
             throw()
         value

@@ -148,3 +148,26 @@ let ``Can serialize document with guid``() =
     let j = Json.parse txt
     j |> Json.serialize |> should equal txt
   
+[<Fact>]
+let ``Single line comment is skipped``() =
+    let txt =
+        """//
+        {
+            "test": true // x
+        }
+        //"""
+    let j = Json.parse txt
+    j?test.AsBool() |> should be True
+
+[<Fact>]
+let ``Multiline comment is skipped`` () =
+    let txt =
+        """/**/
+        {"test": true}
+        /**//**/ /**/ //
+        /* {
+                "test": true
+            }
+        */"""
+    let j = Json.parse txt
+    j?test.AsBool() |> should be True
